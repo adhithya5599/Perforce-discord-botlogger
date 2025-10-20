@@ -10,8 +10,10 @@ from discord_webhooks import DiscordWebhooks
 last_change_path = join(dirname(abspath(__file__)), "last_change.ini")
 config_path = join(dirname(abspath(__file__)), "config.ini")
 sig_path = join(dirname(abspath(__file__)), "bot_signatures.json")
+user_map_path = join(dirname(abspath(__file__)), "user_mapping.json")
 
 signatures = json.load( open(sig_path, 'r', encoding='utf-8') )
+users = json.load( open(user_map_path, 'r', encoding='utf-8') )
 
 def get_funny_signature():
   return signatures[random.randint(0,len(signatures)-1)]
@@ -91,8 +93,9 @@ class PerforceLogger():
       for payload in reversed(changes):
         if(payload != ''):
           user = payload.user.split("@")[0]
+          display_name = users.get(user, user)
           message = DiscordWebhooks(self.webhook_url)
-          message.set_author(name=f"@{user} : new submit" )
+          message.set_author(name=f"@{display_name} : new submit" )
           message.set_content(color=0x51D1EC, description= f"`#{payload.num}`  - {payload.time} {payload.date} \n```fix\n{payload.content.lstrip()}``` ")
           if(signature):
             signature = get_funny_signature()
